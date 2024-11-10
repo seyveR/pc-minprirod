@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P7AY3R5</title>
+</head>
+
+<body>
+
+    {% block main %}
+    <div id="screen4" class="screen">
+        <div class="stage-sliderR">
+            <div class="stagesR">
+                <div class="stage stage1R">Загрузка фото</div>
+                <div class="stage stage2R">Фильтрация</div>
+                <div class="stage stage3R">Вывод результатов</div>
+            </div>
+        </div>
+
+        <div class="photo-viewerR">
+            <div class="side-menu">
+                <a href="/" class="return-button">Вернуться</a>
+                <div class="file-info">
+                    <div class="info-item">
+                        <p><strong>Название файла</strong></p>
+                        <p class="info-text" id="file-name">images</p>
+                    </div>
+                    <div class="info-item">
+                        <p><strong>Количество объектов модели</strong></p>
+                        <p class="info-text" id="count-model">0</p>
+                    </div>
+                    <div class="info-item">
+                        <p><strong>Количество объектов всего</strong></p>
+                        <p class="info-text" id="count-all">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-photo">
+                <img id="main-photo-display" src="" alt="Просмотр фото">
+            </div>
+
+            <div class="thumbnail-container">
+                <h3>Обработанные фото</h3>
+                <div id="thumbnails" class="thumbnails"></div>
+
+                <div class="nav-buttons">
+                    <button id="prevPageR"><img src="{% static 'files/left-arrow.png' %}" alt="Предыдущая"></button>
+                    <button id="nextPageR"><img src="{% static 'files/right-arrow.png' %}" alt="Следующая"></button>
+                    <button id="downloadAll"><img src="{% static 'files/downloads.png' %}" alt="Скачать все"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const mainPhotoDisplay = document.getElementById("main-photo-display");
+            const thumbnailsContainer = document.getElementById("thumbnails");
+            const prevPageButton = document.getElementById("prevPageR");
+            const nextPageButton = document.getElementById("nextPageR");
+            const downloadAllButton = document.getElementById("downloadAll");
+
+            const maxPhotosPerPage = 4; 
+            let currentPage = 0; 
+
+            // Получаем данные результата из localStorage
+            let resultData = JSON.parse(localStorage.getItem('resultData'));
+
+            let imageUrls = [];
+
+            if (resultData && resultData.result && resultData.result.photo_name) {
+                const photoNames = resultData.result.photo_name;
+                // Преобразуем объект в массив URL-адресов изображений
+                imageUrls = Object.values(photoNames);
+            }
+
+            if (imageUrls.length > 0) {
+                displayMainPhoto(imageUrls[0]); // Показываем первое изображение
+                displayThumbnails();
+            }
+
+            // Обновляем информацию о файле
+            if (resultData) {
+                document.getElementById('count-model').textContent = resultData.count_model || '0';
+                document.getElementById('count-all').textContent = resultData.count_all || '0';
+                // Здесь можно добавить обновление других полей
+            }
+
+            // Функция для отображения главного фото
+            function displayMainPhoto(imageUrl) {
+                mainPhotoDisplay.src = imageUrl; // Предполагается, что imageUrl является действительным URL
+            }
+
+            // Функция для отображения миниатюр
+            function displayThumbnails() {
+                thumbnailsContainer.innerHTML = ""; // Очищаем предыдущие миниатюры
+                const start = currentPage * maxPhotosPerPage;
+                const end = start + maxPhotosPerPage;
+                const photosToShow = imageUrls.slice(start, end);
+
+                photosToShow.forEach((imageUrl) => {
+                    const thumbnail = document.createElement("div");
+                    thumbnail.classList.add("thumbnail");
+                    const img = document.createElement("img");
+                    img.src = imageUrl;
+                    img.addEventListener("click", () => {
+                        displayMainPhoto(imageUrl);
+                        document.querySelectorAll(".thumbnail img").forEach(img => img.classList.remove("selected"));
+                        img.classList.add("selected");
+                    });
+                    thumbnail.appendChild(img);
+                    thumbnailsContainer.appendChild(thumbnail);
+                });
+            }
+
+            // Обработчики для кнопок "Предыдущая" и "Следующая"
+            prevPageButton.addEventListener("click", () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    displayThumbnails();
+                }
+            });
+
+            nextPageButton.addEventListener("click", () => {
+                if ((currentPage + 1) * maxPhotosPerPage < imageUrls.length) {
+                    currentPage++;
+                    displayThumbnails();
+                }
+            });
+
+            // Обработчик для кнопки "Скачать все"
+            downloadAllButton.addEventListener("click", () => {
+                const zip = new JSZip();
+                let count = 0;
+                imageUrls.forEach((imageUrl, index) => {
+                    // Загружаем данные изображения
+                    fetch(imageUrl)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        zip.file(`image_${index}.jpg`, blob);
+                        count++;
+                        if (count === imageUrls.length) {
+                            zip.generateAsync({type:"blob"})
+                            .then(function(content) {
+                                saveAs(content, "images.zip");
+                            });
+                        }
+                    });
+                });
+            });
+
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P7AY3R5</title>
+</head>
+
+<body>
+
+{% block main %}
+    <div id="screen3" class="screen">
+        <div class="stage-sliderF">
+            <div class="stagesF">
+                <div class="stage stage1F">Загрузка фото</div>
+                <div class="stage stage2F">Фильтрация</div>
+                <div class="stage stage3F">Вывод результатов</div>
+            </div>
+        </div>
+        <div class="loading-container">
+            <div class="loading-animation">
+                <img src="{% static 'files/loading.gif' %}" alt="Загрузка">
+            </div>
+            <ul id="loading-steps" class="loading-steps">
+                <!-- Здесь будут добавляться сообщения -->
+            </ul>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Получаем ID из URL-параметра
+            const urlParams = new URLSearchParams(window.location.search);
+            const uploadID = urlParams.get('id');
+
+            if (uploadID) {
+                var ws = new WebSocket("ws://localhost:8001/" + uploadID + "/ws");
+                ws.addEventListener("message", (event) => {
+                    console.log(event.data);
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'start' || data.type === 'worker' || data.type === 'stop') {
+                            addStep(data.text);
+                        }
+                        if (data.type === 'result') {
+                            // Сохраняем данные результата в localStorage
+                            localStorage.setItem('resultData', JSON.stringify(data));
+                            // Переходим на страницу результатов
+                            window.location.href = "{% url 'results' %}";
+                        }
+                    } catch (e) {
+                        console.error('Ошибка при разборе сообщения:', e);
+                    }
+                });
+            } else {
+                alert('ID загрузки не найден в URL');
+            }
+            console.log('Полученный uploadID:', uploadID);
+
+            function addStep(text) {
+                const stepsList = document.getElementById('loading-steps');
+                const li = document.createElement('li');
+                li.classList.add('step');
+                li.innerHTML = `<span class="step-check">&#10003;</span> ${text}`;
+                stepsList.appendChild(li);
+                // Прокручиваем список вниз, чтобы показать последнее сообщение
+                stepsList.scrollTop = stepsList.scrollHeight;
+            }
+        });
+    </script>
+
+{% endblock %}
+
+</body>
+</html>

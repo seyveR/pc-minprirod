@@ -1,0 +1,16 @@
+services:
+  api-model-control:
+    restart: always
+    ports:
+      - 8001:8001
+    build: 
+     context:  api_model/.
+  app-django:
+    restart: always
+    depends_on:
+      - api-model-control
+    ports:
+      - 8000:8000
+    build: 
+     context: app-django/.
+

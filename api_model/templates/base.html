@@ -1,0 +1,194 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'base.css' %}">
+    <link rel="stylesheet" href="{% static 'start.css' %}">
+    <link rel="stylesheet" href="{% static 'analyz.css' %}">
+    <link rel="stylesheet" href="{% static 'filtration.css' %}">
+    <link rel="stylesheet" href="{% static 'results.css' %}">
+    
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,800;1,500;0,200;1,300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+
+
+
+    <link rel="icon" href="{% static 'files/logopc.ico' %}" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+
+
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+
+
+    
+    <title>P7AY3R5</title>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="header-line">
+                <div class="header-logo">
+                    <a href="/"><img src="{% static 'files/players.png' %}" alt=""></a>
+                </div>
+            </div>
+    
+            <div class="btn-menu">
+                <input type="checkbox" id="menu-check">
+                <div id="tool-menu" class="tool-menu">
+                    <div id="tool-logo" class="tool-logo">
+                        <img src="{% static 'files/logopc.svg' %}" alt="">
+                    </div>
+    
+                    <label for="menu-check" class="menu-toggle">
+                        <i class="fas fa-bars">
+                            <img src="{% static 'files/close_menu.png' %}" alt="">
+                        </i>
+                        <i class="fas fa-times">
+                            <img src="{% static 'files/open_menu.png' %}" alt="">
+                        </i>
+                    </label>
+    
+                    <div class="nav-menu">
+                        <a class="nav-menu-item block" href="/">Главная</a>
+                        <a class="nav-menu-item block" href="/analyz">Анализ</a>
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        const menuCheckbox = document.getElementById("menu-check");
+        const container = document.querySelector(".container");
+        const startcontainer = document.querySelector(".custom-content-container");
+
+        // Функция для определения текущего брейкпоинта
+        function getBreakpoint(width) {
+            if (width <= 576) return 'xxs';
+            if (width <= 820) return 'xm';
+            if (width <= 920) return 'm';
+            if (width <= 1070) return 'sm';
+            if (width <= 1200) return 'md';
+            if (width <= 1400) return 'lg';
+            if (width <= 1600) return 'xl';
+            if (width <= 1700) return 'xxl';
+            return 'xxxl';
+        }
+
+        // Функция для получения отступов в зависимости от брейкпоинта и состояния чекбокса
+        function getMargins(breakpoint, isChecked) {
+            const margins = {
+                xxxl: { container: isChecked ? "60px" : "300px", startcontainer: isChecked ? "480px" : "620px" },
+                xxl: { container: isChecked ? "60px" : "300px", startcontainer: isChecked ? "400px" : "520px" },
+                xl: { container: isChecked ? "60px" : "300px", startcontainer: isChecked ? "330px" : "450px" },
+                lg: { container: isChecked ? "60px" : "300px", startcontainer: isChecked ? "250px" : "360px" },
+                md: { container: isChecked ? "60px" : "300px", startcontainer: isChecked ? "200px" : "320px" },
+                sm: { container: isChecked ? "60px" : "200px", startcontainer: isChecked ? "230px" : "300px" },
+                m: { container: isChecked ? "60px" : "200px", startcontainer: isChecked ? "210px" : "280px" },
+                xm: { container: isChecked ? "60px" : "200px", startcontainer: isChecked ? "210px" : "280px" },
+                xxs: { container: isChecked ? "20px" : "100px", startcontainer: isChecked ? "250px" : "150px" },
+            };
+            return margins[breakpoint];
+        }
+
+        // Функция для обновления отступов
+        function updateMargins() {
+            const screenWidth = window.innerWidth;
+            const breakpoint = getBreakpoint(screenWidth);
+            const isChecked = menuCheckbox.checked;
+            const margins = getMargins(breakpoint, isChecked);
+
+            container.style.marginLeft = margins.container;
+            startcontainer.style.marginLeft = margins.startcontainer;
+        }
+
+        // Обработчик события изменения состояния чекбокса
+        menuCheckbox.addEventListener("change", updateMargins);
+
+        // Обработчик события изменения размера окна
+        window.addEventListener("resize", updateMargins);
+
+        // Первоначальный вызов функции для установки значений
+        updateMargins();
+    });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUrl = new URL(window.location.href);
+            const navItems = document.querySelectorAll('.nav-menu-item');
+            
+            function setActiveNavItem() {
+                // Сбросить стиль для всех элементов
+                navItems.forEach(item => item.classList.remove('active'));
+            
+                // Найти активный элемент
+                const activeItem = Array.from(navItems).find(item => {
+                    const itemHref = new URL(item.getAttribute('href'), currentUrl.origin);
+                    return currentUrl.pathname === itemHref.pathname ||
+                           currentUrl.pathname.startsWith(itemHref.pathname + '/');
+                });
+            
+                if (activeItem) {
+                    activeItem.style.color = '#EB150E';  // Цвет активного элемента
+                    activeItem.style.textDecoration = 'underline';  // Подчеркнутый текст
+                    activeItem.classList.add('active');
+                }
+                
+                // Дополнительная логика для filtration.html
+                // if (currentUrl.pathname === '/filtration') {
+                //     const analyzLink = Array.from(navItems).find(item => item.getAttribute('href') === '/analyz');
+                //     if (analyzLink) {
+                //         analyzLink.style.color = '#EB150E';  // Цвет активного элемента для "Анализ"
+                //         analyzLink.style.textDecoration = 'underline';  // Подчеркнутый текст
+                //         analyzLink.classList.add('active');
+                //     }
+                // }
+            }
+        
+            setActiveNavItem();
+        
+            // Обработчик события для изменений истории
+            window.addEventListener('popstate', () => {
+                setActiveNavItem();
+            });
+        });
+
+    </script>
+
+
+
+    {% block main %}
+
+    {% endblock %}
+
+    {% block info %}
+    {% endblock %}
+
+
+</body>
+</html>

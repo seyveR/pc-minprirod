@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P7AY3R5</title>
+</head>
+
+<body>
+
+{% block main %}
+    <div id="screen3" class="screen">
+        <div class="stage-sliderF">
+            <div class="stagesF">
+                <div class="stage stage1F">Загрузка фото</div>
+                <div class="stage stage2F">Фильтрация</div>
+                <div class="stage stage3F">Вывод результатов</div>
+            </div>
+        </div>
+        <div class="loading-container">
+            <div class="loading-animation">
+                <img src="{% static 'files/loading.gif' %}" alt="Загрузка">
+            </div>
+            <ul class="loading-steps">
+                <li class="step step1"><span class="step-check"></span> 1 шаг</li>
+                <li class="step step2"><span class="step-check"></span> 2 шаг</li>
+                <li class="step step3"><span class="step-check"></span> 3 шаг</li>
+                <li class="step step4"><span class="step-check"></span> Завершение</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        // Функция для добавления галочки
+        function addCheckmark(stepNumber) {
+            const step = document.querySelector(`.step${stepNumber} .step-check`);
+            if (step) {
+                step.innerHTML = '&#10003;'; // Добавляем галочку
+            }
+            
+            // Проверка, если последний шаг завершен, переходим на другую страницу
+            if (stepNumber === 4) {
+                setTimeout(() => {
+                    window.location.href = "{% url 'results' %}"; 
+                }, 500); // Немного задержки перед переходом
+            }
+        }
+
+        // Функция для имитации выполнения шагов
+        function simulateSteps() {
+            setTimeout(() => addCheckmark(1), 1000); 
+            setTimeout(() => addCheckmark(2), 2000); 
+            setTimeout(() => addCheckmark(3), 3000); 
+            setTimeout(() => addCheckmark(4), 4000); 
+        }
+
+        // Запуск симуляции
+        var ws = new WebSocket("ws://localhost:8001/1/ws");
+        var flag_end = false;
+        ws.addEventListener("message", (event) => {
+            console.log(event.data);
+        });
+
+    </script>
+
+{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>P7AY3R5</title>
+</head>
+
+<body>
+
+
+    {% block main %}
+    <div class="custom-content-container">
+        <section class="custom-section custom-section-top">
+            <div class="custom-image-box">
+                <img src="{% static 'files/zagl-photo.png' %}" alt="Animal Detection" class="custom-image">
+            </div>
+            <div class="custom-text-box">
+                <h2>Автоматическая фильтрация изображений животных</h2>
+                <p>AI Video Generator from Text<br>
+                    Просто введите текст, и Clippy преобразует описание в динамическое видео за считанные секунды с помощью искусственного интеллекта. Экспериментируйте с этим удивительным AI видео генератором и наблюдайте, как ваши слова превращаются в уникальные видео!</p>
+
+                    <p>AI Video Generator from Text<br>
+                        Просто введите текст, и Clippy преобразует описание в динамическое видео за считанные секунды с помощью искусственного интеллекта. Экспериментируйте с этим удивительным AI видео генератором и наблюдайте, как ваши слова превращаются в уникальные видео!</p>
+                    <a class="start-btn" href="/analyz">
+                        <button class="custom-start-button">Начать</button>
+                    </a>
+            </div>
+        </section>
+
+        <section class="custom-section custom-section-bottom">
+            <div class="custom-text-box">
+                <h2>Как использовать нашу систему?</h2>
+                <p>Шаг 1: Загрузка фотографий<br>
+                    Выберите удобный для вас способ загрузки фотографий: 
+                    с облачного хранилища или с локального устройства.</p>
+
+                <p>Шаг 2: Проверьте загруженные фото<br>
+                    Просмотрите ваши фотографии, если требуется, и нажмите кнопку "Начать".</p>
+
+                <p>Шаг 3: Просмотр результатов<br>
+                    Дождитесь окончания работы сервиса и просмотрите полученные результаты, 
+                    вы также можете скачать сформированный архив с фотографиями и отчетом.</p>
+                <a class="start-btn" href="/analyz">
+                    <button class="custom-start-button">Начать</button>
+                </a>
+            </div>
+            <div class="custom-image-box">
+                <img src="{% static 'files/zagl-photo.png' %}" alt="Animal Detection" class="custom-image">
+            </div>
+        </section>
+    </div>
+
+    {% endblock %}
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

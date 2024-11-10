@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P7AY3R5</title>
+    {% comment %} {% csrf_token %} {% endcomment %}
+</head>
+
+<body>
+
+{% block main %}
+    <div class="analyz-container">
+        <div id="screen1" class="screen active">
+            <div class="stage-slider">
+                <div class="stages">
+                    <div class="stage stage1">Загрузка фото</div>
+                    <div class="stage stage2">Фильтрация</div>
+                    <div class="stage stage3">Вывод результатов</div>
+                </div>
+            </div>
+            <div class="upload-container">
+                <label class="device-upload-button" for="upload-images">
+                    <input type="file" id="upload-images" accept="image/*" multiple style="display: none;">
+                    <span>Загрузить изображения с устройства</span>
+                </label>
+            </div>
+        </div>
+    
+        <div id="screen2" class="screen">
+            <div class="stage-slider">
+                <div class="stages">
+                    <div class="stage stage1">Загрузка фото</div>
+                    <div class="stage stage2">Фильтрация</div>
+                    <div class="stage stage3">Вывод результатов</div>
+                </div>
+            </div>
+
+            <div class="photo-viewer">
+                <div class="main-photo">
+                    <img id="main-photo-display" src="" alt="Просмотр фото">
+                    <!-- Убираем тег <a> вокруг кнопки -->
+                    <button id="start-button" class="view-full-button">Начать</button>
+                </div>
+                <div class="thumbnail-container">
+                    <h3>Загруженные фото</h3>
+                    <div id="thumbnails" class="thumbnails"></div>
+                    <div class="nav-buttonsA">
+                        <button id="prevPage"><img src="{% static 'files/left-arrow.png' %}" alt="Предыдущая"></button>
+                        <button id="nextPage"><img src="{% static 'files/right-arrow.png' %}" alt="Следующая"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const fileInput = document.getElementById("upload-images");
+            const screen1 = document.getElementById("screen1");
+            const screen2 = document.getElementById("screen2");
+            const thumbnailsContainer = document.getElementById("thumbnails");
+            const mainPhotoDisplay = document.getElementById("main-photo-display");
+            const prevPageButton = document.getElementById("prevPage");
+            const nextPageButton = document.getElementById("nextPage");
+            const startButton = document.getElementById("start-button"); // Добавили получение кнопки
+
+            let selectedPhotos = [];
+            const maxPhotosPerPage = 4;
+            let currentPage = 0;
+
+            // Обработка выбора фото
+            fileInput.addEventListener("change", function(event) {
+                selectedPhotos = Array.from(event.target.files);
+                if (selectedPhotos.length > 0) {
+                    // Сохранение изображений в localStorage
+                    saveImagesToLocalStorage(selectedPhotos);
+
+                    // Отправка изображений на сервер
+                    uploadImagesToServer(selectedPhotos);
+
+                    switchToScreen2();
+                    displayThumbnails();
+                    displayMainPhoto(selectedPhotos[0]);
+                }
+            });
+
+            function saveImagesToLocalStorage(images) {
+                const imageArray = [];
+                images.forEach(photo => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imageArray.push(e.target.result);
+                        if (imageArray.length === images.length) {
+                            localStorage.setItem("uploadedImages", JSON.stringify(imageArray));
+                        }
+                    };
+                    reader.readAsDataURL(photo);
+                });
+            }
+
+            // Функция для отправки изображений на сервер
+            function uploadImagesToServer(images) {
+                const formData = new FormData();
+                images.forEach((image, index) => {
+                    formData.append('files', image);
+                });
+
+                fetch("{% url 'upload_files' %}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken') // Если используете CSRF-токены
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.upload_id) {
+                        // Сохраняем ID, полученный от сервера
+                        localStorage.setItem('uploadID', data.upload_id);
+
+                    } else {
+                        console.log(data);
+                        alert('Ошибка при загрузке изображений на сервер');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при отправке изображений на сервер:', error);
+                });
+            }
+
+            // Обработчик для кнопки "Начать"
+            startButton.addEventListener('click', function() {
+                // Получаем ID из localStorage
+                const uploadID = localStorage.getItem('uploadID');
+                if (uploadID) {
+                    // Переходим на страницу filtration с передачей ID через URL
+                    window.location.href = "{% url 'filtration' %}" + "?id=" + encodeURIComponent(uploadID);
+                } else {
+                    alert('ID загрузки не найден');
+                }
+                console.log('uploadID:', uploadID);
+            });
+
+            // Функция для получения CSRF-токена (если используете Django)
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Проверяем, начинается ли куки с нужного имени
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Переключение на экран 2
+            function switchToScreen2() {
+                screen1.classList.remove("active");
+                screen2.classList.add("active");
+            }
+
+            // Отображение миниатюр с учетом постраничной навигации
+            function displayThumbnails() {
+                thumbnailsContainer.innerHTML = ""; // Очистка предыдущих миниатюр
+                const start = currentPage * maxPhotosPerPage;
+                const end = start + maxPhotosPerPage;
+                const photosToShow = selectedPhotos.slice(start, end);
+
+                photosToShow.forEach(photo => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const thumbnail = document.createElement("div");
+                        thumbnail.classList.add("thumbnail");
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.addEventListener("click", () => {
+                            displayMainPhoto(photo);
+                            document.querySelectorAll(".thumbnail img").forEach(img => img.classList.remove("selected"));
+                            img.classList.add("selected");
+                        });
+                        thumbnail.appendChild(img);
+                        thumbnailsContainer.appendChild(thumbnail);
+                    };
+                    reader.readAsDataURL(photo);
+                });
+
+                // Обновление видимости кнопок навигации
+                //prevPageButton.style.display = currentPage > 0 ? "block" : "none";
+                //nextPageButton.style.display = end < selectedPhotos.length ? "block" : "none";
+            }
+
+            // Обработчики для кнопок "Предыдущая" и "Следующая"
+            prevPageButton.addEventListener("click", () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    displayThumbnails();
+                }
+            });
+
+            nextPageButton.addEventListener("click", () => {
+                if ((currentPage + 1) * maxPhotosPerPage < selectedPhotos.length) {
+                    currentPage++;
+                    displayThumbnails();
+                }
+            });
+
+            // Отображение выбранного фото
+            function displayMainPhoto(photo) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    mainPhotoDisplay.src = e.target.result;
+                };
+                reader.readAsDataURL(photo);
+            }
+        });
+    </script>
+
+{% endblock %}
+
+</body>
+</html>

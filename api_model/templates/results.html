@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P7AY3R5</title>
+</head>
+
+<body>
+
+    {% block main %}
+    <div id="screen4" class="screen">
+        <div class="stage-sliderR">
+            <div class="stagesR">
+                <div class="stage stage1R">Загрузка фото</div>
+                <div class="stage stage2R">Фильтрация</div>
+                <div class="stage stage3R">Вывод результатов</div>
+            </div>
+        </div>
+
+        
+        <div class="photo-viewerR">
+         
+            <div class="side-menu">
+                <a href="/" class="return-button">Вернуться</a>
+                <div class="file-info">
+                    <div class="info-item">
+                        <p><strong>Название файла</strong></p>
+                        <p class="info-text">images</p>
+                    </div>
+                    <div class="info-item">
+                        <p><strong>Размер файла</strong></p>
+                        <p class="info-text">123 mb</p>
+                    </div>
+                    <div class="info-item">
+                        <p><strong>Область покрытия</strong></p>
+                        <p class="info-text">placeholder</p>
+                    </div>
+                    <div class="info-item">
+                        <p><strong>Найденные классы</strong></p>
+                        <p class="info-text">placeholder</p>
+                    </div>
+                    <div class="info-item">
+                        <p><strong>Площадь объектов</strong></p>
+                        <p class="info-text">placeholder</p>
+                    </div>
+                    <div class="info-item">
+                        <p><strong>Пригодность для анализа</strong></p>
+                        <p class="info-text">placeholder</p>
+                    </div>
+                </div>
+            </div>
+
+           
+            <div class="main-photo">
+                <img id="main-photo-display" src="" alt="Просмотр фото">
+            </div>
+
+         
+            <div class="thumbnail-container">
+                <h3>Загруженные фото</h3>
+                <div id="thumbnails" class="thumbnails"></div>
+                
+                <div class="nav-buttons">
+                    <button id="prevPageR"><img src="{% static 'files/left-arrow.png' %}" alt="Предыдущая"></button>
+                    <button id="nextPageR"><img src="{% static 'files/right-arrow.png' %}" alt="Следующая"></button>
+                    <button id="downloadAll"><img src="{% static 'files/downloads.png' %}" alt="Скачать все"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const mainPhotoDisplay = document.getElementById("main-photo-display");
+            const thumbnailsContainer = document.getElementById("thumbnails");
+            const prevPageButton = document.getElementById("prevPageR");
+            const nextPageButton = document.getElementById("nextPageR");
+            const downloadAllButton = document.getElementById("downloadAll");
+
+            const maxPhotosPerPage = 4; 
+            let currentPage = 0; 
+            let uploadedImages = JSON.parse(localStorage.getItem("uploadedImages")) || [];
+
+            if (uploadedImages.length > 0) {
+                displayMainPhoto(uploadedImages[0]); // Показываем первое фото сразу
+                displayThumbnails();
+            }
+
+            // Функция для отображения главного фото
+            function displayMainPhoto(imageData) {
+                mainPhotoDisplay.src = imageData;
+            }
+
+            // Функция для отображения миниатюр на текущей странице
+            function displayThumbnails() {
+                thumbnailsContainer.innerHTML = ""; // Очистка предыдущих миниатюр
+                const start = currentPage * maxPhotosPerPage;
+                const end = start + maxPhotosPerPage;
+                const photosToShow = uploadedImages.slice(start, end);
+
+                photosToShow.forEach((imageData, index) => {
+                    const thumbnail = document.createElement("div");
+                    thumbnail.classList.add("thumbnail");
+                    const img = document.createElement("img");
+                    img.src = imageData;
+                    img.addEventListener("click", () => {
+                        displayMainPhoto(imageData);
+                        document.querySelectorAll(".thumbnail img").forEach(img => img.classList.remove("selected"));
+                        img.classList.add("selected");
+                    });
+                    thumbnail.appendChild(img);
+                    thumbnailsContainer.appendChild(thumbnail);
+                });
+            }
+
+            // Обработчики для кнопок "Предыдущая" и "Следующая"
+            prevPageButton.addEventListener("click", () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    displayThumbnails();
+                }
+            });
+
+            nextPageButton.addEventListener("click", () => {
+                if ((currentPage + 1) * maxPhotosPerPage < uploadedImages.length) {
+                    currentPage++;
+                    displayThumbnails();
+                }
+            });
+
+            // Обработчик для кнопки "Скачать все"
+            downloadAllButton.addEventListener("click", () => {
+                const zip = new JSZip();
+                uploadedImages.forEach((imageData, index) => {
+                    // Удаляем префикс Data URL и определяем расширение файла
+                    const imgData = imageData.replace(/^data:image\/(png|jpg|jpeg);base64,/, "");
+                    const extMatch = imageData.match(/^data:image\/(png|jpg|jpeg);base64,/);
+                    let ext = "png"; // Значение по умолчанию
+                    if (extMatch && extMatch[1]) {
+                        ext = extMatch[1];
+                    }
+                    zip.file(`image_${index}.${ext}`, imgData, {base64: true});
+                });
+                zip.generateAsync({type:"blob"})
+                .then(function(content) {
+                    saveAs(content, "images.zip");
+                });
+            });
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>

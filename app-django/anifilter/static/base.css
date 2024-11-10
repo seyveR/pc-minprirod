@@ -1,0 +1,384 @@
+/*  Стили для base шаблона  */
+
+
+
+* {
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Скрывает горизонтальную прокрутку */
+    /* overflow-y: hidden;  */
+    font-family: 'Roboto', sans-serif;
+}
+
+.container {
+    margin: 0px 60px;
+    font-family: 'Roboto', sans-serif;
+    /* margin-left: 300px; */
+    transition: margin-left 0.6s ease;
+}
+
+
+/* .header {
+    border-bottom: 2px solid transparent;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+} */
+
+.header-line {
+    padding-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    letter-spacing: .3px;
+
+}
+
+.header-logo {
+    flex-shrink: 0;
+    /* margin-left: calc(45%); */
+}
+
+.header-logo img{
+    flex-shrink: 0;
+    width: 205px;
+    height: 90px;
+}
+
+.nav-item {
+    color: gray;
+    text-decoration: none;
+    font-weight: 300;
+    font-size: 22px;
+
+    transition: color 0.3s linear;
+}
+
+.active {
+    color: #000!important;
+    /* text-decoration: underline!important; */
+}
+
+.nav-item:hover{
+    color: #000;
+}
+
+.nav {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    gap: 60px; 
+    margin-right: calc((100% - 120px) / 10);
+    
+}
+
+
+
+
+.fas img {
+    width: 20px;
+    height: 20px;
+}
+
+#menu-check {
+    display: none;
+}
+
+.fa-times {
+    display: none;
+}
+
+.block {
+    display: block;
+}
+
+.disp {
+    display: none;
+}
+
+.tool-menu {
+    position: fixed;
+    top: 0;
+    left: 0px; 
+    width: 300px;
+    height: 100%;
+    background: rgba(255, 255, 255, .8);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+    z-index: 100;
+    backdrop-filter: blur(5px);
+    transition: left .6s ease;
+}
+
+.menu-toggle {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    z-index: 101; /* Выше фона меню */
+}
+
+#menu-check:checked ~ .tool-menu {
+    /* opacity: 1;
+    visibility: visible; */
+    left: -270px;
+}
+
+/* #menu-check:checked ~ .container {
+    margin-left: 0;
+} */
+
+#menu-check:checked ~ .tool-menu .fa-bars {
+    display: none;
+}
+
+#menu-check:checked ~ .tool-menu .fa-times {
+    display: inline-block;
+}
+
+
+.nav-menu {
+    margin-top: 40px;
+}
+
+.nav-menu-item {
+    margin-top: 10px;
+    padding: 5px 10px;
+    text-align: left;
+    text-decoration: none;
+    color: gray;
+    font-family: 'Inter';
+    font-size: 26px;
+    text-align: center;
+}
+
+.nav-menu-item:hover {
+    color: #000;
+}
+
+.other-color {
+    color: #000;
+}
+
+.other-color:hover {
+    color: #b6cddf;
+}
+
+.tool-menu .btn {
+    padding: 10px;
+    text-align: center;
+}
+
+.btn {
+    position: fixed;
+    bottom: 0;
+    align-items: center;
+    left: 28%;
+}
+
+.btn-menu {
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 0;
+    margin-left: calc(25%);
+}
+
+
+
+
+i.fas.fa-bars, i.fas.fa-times {
+    cursor: pointer;
+}
+
+#header-logo {
+    position: relative;
+    display: inline-block;
+}
+
+.tool-logo {
+    text-align: center;
+    padding: 10px 0px;
+    backdrop-filter: blur(5px);
+    z-index: 100;
+}
+
+.tool-logo img{
+    width: 110px;
+    height: 110px;
+}
+
+@media screen and (max-width: 1070px) {
+    .container {
+        margin: 0px 40px;
+        font-family: 'Open Sans', sans-serif;
+        /* margin-left: 300px; */
+        transition: margin-left 0.6s ease;
+    }
+
+    .header-line {
+        padding-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        letter-spacing: .3px;
+
+    }
+
+    .header-logo img{
+        flex-shrink: 0;
+        width: 180px;
+        height: 80px;
+    }
+
+
+    .fas img {
+        width: 15px;
+        height: 15px;
+    }
+
+    .tool-menu {
+        position: fixed;
+        top: 0;
+        left: 0px; 
+        width: 250px;
+        height: 100%;
+        background: rgba(255, 255, 255, .8);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+        z-index: 100;
+        backdrop-filter: blur(5px);
+        transition: left .6s ease;
+    }
+
+    .menu-toggle {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        cursor: pointer;
+        z-index: 101; /* Выше фона меню */
+    }
+
+    #menu-check:checked ~ .tool-menu {
+        left: -225px;
+    }
+
+    .nav-menu {
+        margin-top: 30px;
+    }
+
+    .nav-menu-item {
+        margin-top: 10px;
+        padding: 5px 10px;
+        text-align: left;
+        text-decoration: none;
+        color: gray;
+        font-family: 'Inter';
+        font-size: 23px;
+        text-align: center;
+    }
+
+    .tool-logo {
+        text-align: center;
+        padding: 8px 0px;
+        backdrop-filter: blur(5px);
+        z-index: 100;
+    }
+
+    .tool-logo img{
+        width: 100px;
+        height: 100px;
+    }
+}
+
+@media screen and (max-width: 920px) {
+    .container {
+        margin: 0px 30px;
+        font-family: 'Open Sans', sans-serif;
+        /* margin-left: 300px; */
+        transition: margin-left 0.6s ease;
+    }
+
+    .header-line {
+        padding-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        letter-spacing: .3px;
+
+    }
+
+    .header-logo img{
+        flex-shrink: 0;
+        width: 150px;
+        height: 65px;
+    }
+
+
+    .fas img {
+        width: 15px;
+        height: 15px;
+    }
+
+    .tool-menu {
+        position: fixed;
+        top: 0;
+        left: 0px; 
+        width: 200px;
+        height: 100%;
+        background: rgba(255, 255, 255, .8);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+        z-index: 100;
+        backdrop-filter: blur(5px);
+        transition: left .6s ease;
+    }
+
+    .menu-toggle {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        cursor: pointer;
+        z-index: 101; /* Выше фона меню */
+    }
+
+    #menu-check:checked ~ .tool-menu {
+        left: -175px;
+    }
+
+    .nav-menu {
+        margin-top: 30px;
+    }
+
+    .nav-menu-item {
+        margin-top: 10px;
+        padding: 5px 10px;
+        text-align: left;
+        text-decoration: none;
+        color: gray;
+        font-family: 'Inter';
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .tool-logo {
+        text-align: center;
+        padding: 8px 0px;
+        backdrop-filter: blur(5px);
+        z-index: 100;
+    }
+
+    .tool-logo img{
+        width: 90px;
+        height: 90px;
+    }
+}
+
+@media screen and (max-width: 1500px) {
+   
+}
+
+@media screen and (max-width: 1400px) {
+   
+}
