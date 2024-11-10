@@ -70,57 +70,57 @@ def get_swin_model():
 swin_model = get_swin_model()
 
 
-# def save_image(id_folder, photo_name, detection_results):
-#     path = f'{PATH_UPLOAD}/{id_folder}/'
-#     photo_name = photo_name
-#     image = Image.open(path + photo_name)
-#     image_width, image_height = image.size
-
-#     label_mapping = model_det.names
-
-
-#     output_folder = path
-#     os.makedirs(output_folder, exist_ok=True)
-
-#     for result in detection_results:
-#         for box in result.boxes:
-#             label_target = [{
-#                 'class': label_mapping.get(result.names[box.cls.item()], 'Unknown'),
-#                 'conf': box.conf.item()
-#             }]
-
-#         annot = result.plot(boxes=True, labels=True, conf=True, line_width=2)
-
-#         im = Image.fromarray(annot[..., ::-1])  # Конвертируем из BGR в RGB для PIL
-
-#         output_path = os.path.join(output_folder, f"annotated_{photo_name}")
-#         im.save(output_path, format="JPEG")
-#     return path + f"annotated_{photo_name}"
-
 def save_image(id_folder, photo_name, detection_results):
     path = f'{PATH_UPLOAD}/{id_folder}/'
-    image_path = os.path.join(path, photo_name)
-    image = Image.open(image_path)
+    photo_name = photo_name
+    image = Image.open(path + photo_name)
     image_width, image_height = image.size
 
     label_mapping = model_det.names
 
+
     output_folder = path
     os.makedirs(output_folder, exist_ok=True)
 
-    img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-
     for result in detection_results:
         for box in result.boxes:
-            x_min, y_min, x_max, y_max = map(int, box.xyxy[0])
-            cv2.rectangle(img_cv, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-            
-    img_annotated = Image.fromarray(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
+            label_target = [{
+                'class': label_mapping.get(result.names[box.cls.item()], 'Unknown'),
+                'conf': box.conf.item()
+            }]
 
-    output_path = os.path.join(output_folder, f"annotated_{photo_name}")
-    img_annotated.save(output_path, format="JPEG")
+        annot = result.plot(boxes=True, labels=True, conf=True, line_width=2)
+
+        im = Image.fromarray(annot[..., ::-1])  # Конвертируем из BGR в RGB для PIL
+
+        output_path = os.path.join(output_folder, f"annotated_{photo_name}")
+        im.save(output_path, format="JPEG")
+    return path + f"annotated_{photo_name}"
+
+# def save_image(id_folder, photo_name, detection_results):
+#     path = f'{PATH_UPLOAD}/{id_folder}/'
+#     image_path = os.path.join(path, photo_name)
+#     image = Image.open(image_path)
+#     image_width, image_height = image.size
+
+#     label_mapping = model_det.names
+
+#     output_folder = path
+#     os.makedirs(output_folder, exist_ok=True)
+
+#     img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+
+#     for result in detection_results:
+#         for box in result.boxes:
+#             x_min, y_min, x_max, y_max = map(int, box.xyxy[0])
+#             cv2.rectangle(img_cv, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+            
+#     img_annotated = Image.fromarray(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
+
+#     output_path = os.path.join(output_folder, f"annotated_{photo_name}")
+#     img_annotated.save(output_path, format="JPEG")
     
-    return output_path
+#     return output_path
 
 def tensor_from_images(image):
     image = test_transform(image=np.array(image))['image'].unsqueeze(0).to(device)
